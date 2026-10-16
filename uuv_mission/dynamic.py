@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from turtle import pd
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from .terrain import generate_reference_and_limits
@@ -76,15 +76,15 @@ class Mission:
 
     @classmethod
     def from_csv(cls, file_name: str):
-        depth_data = pd.read_csv(file_name)  # Ensure pandas is imported if you want to use this line
+       depth_data = pd.read_csv(file_name)  # Ensure pandas is imported if you want to use this line
 
         # Extract the columns from the csv file
-        reference = depth_data[:, 0]
-        cave_height = depth_data[:, 1]
-        cave_depth = depth_data[:, 2]
+       reference = depth_data.iloc[:, 0].to_numpy()
+       cave_height = depth_data.iloc[:, 1].to_numpy()
+       cave_depth = depth_data.iloc[:, 2].to_numpy()   
 
         # Create a Mission instance using the extracted data
-        return(cls(reference, cave_height, cave_depth))
+       return(cls(reference, cave_height, cave_depth))
 
 
 class ClosedLoop:
@@ -106,7 +106,7 @@ class ClosedLoop:
             positions[t] = self.plant.get_position()
             observation_t = self.plant.get_depth()
             # Get the controller output based on the current observation and reference
-            actions[t] = self.controller.calculate(observation_t, mission.reference[t])
+            actions[t] = self.controller.calculate(mission.reference[t], observation_t)
             self.plant.transition(actions[t], disturbances[t])
 
         return Trajectory(positions)
